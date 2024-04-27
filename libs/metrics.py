@@ -50,7 +50,7 @@ def compute_metrics(
             merged_df["label"], merged_df["score"], zero_division=0
         )
         cm = confusion_matrix(merged_df["label"], merged_df["score"])
-        return cr
+        return {"classification_report_training":cr,"confusion_matrix_train":cm}
     # ----------------------------- Metric to analyze VL and TS performance -----------------------------
     else:  # mode=="test" or "eval"
         merged_df.write_csv("prediction_results_TEST.csv")
@@ -70,4 +70,4 @@ def compute_metrics(
         )
         cm = confusion_matrix(merged_df["label"], merged_df["score"])
 
-        return cr, cm, mAP_strict, mAP_relaxed
+        return {"classification_report_training":cr,"confusion_matrix_train":cm,"mAP_strict_test":mAP_strict,"mAP_relaxed_test":mAP_relaxed}

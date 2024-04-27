@@ -45,7 +45,6 @@ def evaluate_predictions(merged_df: pl.DataFrame):
 def load_kpm_data(
     gold_data_dir: str, subset: str, submitted_kp_file: str = None, n_rows=None
 ):
-    # print("\nֿ** loading task data:")
     arguments_file = os.path.join(gold_data_dir, f"arguments_{subset}.csv")
     if not submitted_kp_file:
         key_points_file = os.path.join(gold_data_dir, f"key_points_{subset}.csv")
@@ -73,14 +72,12 @@ def get_predictions(
     arg_df: pl.DataFrame,
     kp_df: pl.DataFrame,
 ):
-    # print("\nֿ** loading predictions:")
     arg_df = arg_df.select("arg_id", "topic", "stance")
     predictions_df = load_predictions(
         predictions_file, kp_df.select("key_point_id").unique()
     )
     # make sure each arg_id has a prediction
     predictions_df = arg_df.join(predictions_df, on="arg_id", how="left")
-    # print(predictions_df[predictions_df.isna().any(axis=1)])
     # handle arguements with no matching key point
     predictions_df = predictions_df.with_columns(
         pl.when(predictions_df["key_point_id"].is_null())
@@ -147,7 +144,6 @@ def load_predictions(predictions_dir: str, correct_kp_list: list):
             }
             for invalid_kp, _ in invalid.items():
                 if invalid_kp not in invalid_keypoints:
-                    # print(f"key point {invalid_kp} doesn't appear in the key points file and will be ignored")
                     invalid_keypoints.add(invalid_kp)
             if valid_kps:
                 best_kp = max(valid_kps.items(), key=lambda x: x[1])
