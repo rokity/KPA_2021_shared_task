@@ -7,10 +7,13 @@ from torch import device, cuda, load, reshape, no_grad
 import torch.nn as nn
 import numpy as np
 from libs.metrics import compute_metrics
-import polars as pl 
+import polars as pl
+from tqdm import tqdm
 
 import logging
+
 logging.basicConfig(format="%(levelname)s:%(message)s", level=logging.DEBUG)
+
 
 class Trainer:
     def __init__(
@@ -94,7 +97,7 @@ class Trainer:
         epoch_preds = []
 
         # iterate over batches
-        for batch, dl in enumerate(self.tr_dataloader):
+        for batch, dl in tqdm(enumerate(self.tr_dataloader)):
             if self.model_name.startswith("bert-") is True:
                 # define input features in the current batches and move it to the employed device
                 ids, tti, mask, stance, label = dl
@@ -139,9 +142,9 @@ class Trainer:
             epoch_preds.append(pred)
 
         # compute loss, classification report, map strict, map relaxed for the whole training epoch
-        logging.debug("Computing Loss and Metrics")
+        logging.info("Computing Loss and Metrics")
         epoch_preds = np.concatenate(epoch_preds, axis=0)
-        self.tr_merged=self.tr_merged.with_columns(predictions= pl.Series(epoch_preds))
+        self.tr_merged = self.tr_merged.with_columns(predictions=pl.Series(epoch_preds))
         self.tr_cr = compute_metrics(
             "train",
             self.tr_merged,
@@ -164,9 +167,10 @@ class Trainer:
         logging.info("Evaluating...")
         running_loss = 0  # accumulate computed loss for each batch
 
-        with no_grad(): # disable gradient calculation
+        with no_grad():  # disable gradient calculation
             # use dataset with only pairs havinng (0,1) label to compute vl loss
-            for batch, dl in enumerate(self.vl_dataloader):
+
+            for batch, dl in tqdm(enumerate(self.vl_dataloader)):
                 if self.model_name.startswith("bert-") is True:
                     ids, tti, mask, stance, label = dl
                     ids = ids.to(self.device)
@@ -218,7 +222,7 @@ class Trainer:
 
         # compute map and classification report
         epoch_preds = np.concatenate(epoch_preds, axis=0)
-        self.vl_merged=self.vl_merged.with_columns(predictions= pl.Series(epoch_preds))
+        self.vl_merged = self.vl_merged.with_columns(predictions=pl.Series(epoch_preds))
         self.vl_cr = compute_metrics(
             "train",
             self.vl_merged,
@@ -229,7 +233,9 @@ class Trainer:
         )
         self.vl_loss = running_loss / len(self.vl_dataloader)
         epoch_preds_map = np.concatenate(epoch_preds_map, axis=0)
-        self.vl_merged_pred=self.vl_merged_pred.with_columns(predictions= pl.Series(epoch_preds_map))
+        self.vl_merged_pred = self.vl_merged_pred.with_columns(
+            predictions=pl.Series(epoch_preds_map)
+        )
         _, _, self.vl_map_strict, self.vl_map_relaxed = compute_metrics(
             "test",
             self.vl_merged_pred,
@@ -244,7 +250,9 @@ class Trainer:
     def fit(self, retrain=False):
         # for each training epoch
         for epoch in range(self.epochs):
-            logging.info("Epoch " + str(epoch + 1) + "/" + str(self.epochs) + " started...")
+            logging.info(
+                "Epoch " + str(epoch + 1) + "/" + str(self.epochs) + " started..."
+            )
 
             # shuffle TR set and create batches
             self.tr_merged, self.tr_dataset = shuffle(self.tr_merged, self.tr_dataset)
@@ -289,6 +297,8 @@ class Trainer:
                 # return training history
                 self.history["tr_loss"].append(self.tr_loss)
                 self.history["tr_cr"].append(self.tr_cr)
-            logging.info("Epoch " + str(epoch + 1) + "/" + str(self.epochs) + " complete!!!")
+            logging.info(
+                "Epoch " + str(epoch + 1) + "/" + str(self.epochs) + " complete!!!"
+            )
 
         return self.model, self.history

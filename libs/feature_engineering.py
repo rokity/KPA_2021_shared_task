@@ -202,10 +202,10 @@ class FeatureEngineering:
 
     # -------------------- execute all preprocessing --------------------
 
-    def get_data(self, data_directory, mode,n_rows=None) -> dict:
+    def get_data(self, data_directory, mode, n_rows=None) -> dict:
         # Load dataset using the official ArgMining function
         self.arguments, self.keypoints, self.labels = load_kpm_data(
-            data_directory, mode,n_rows=n_rows
+            data_directory, mode, n_rows=n_rows
         )
         # Execute data preprocessing and cleaning
         self.preprocess_data()
@@ -213,13 +213,12 @@ class FeatureEngineering:
         self.get_merged_dataset()
         # tokenize the already created dataset
         self.get_tokenized_dataset()
-        if(mode!="train"):
+        if mode != "train":
             # Create a dataset with pairs <argument, keypoint> obtained merging information from argumets, keypoints
             self.get_preds()
             # tokenize the already created dataset
             self.get_tokenized_preds()
-        
-        
+
         # return a dataset dictionary with each processed information
         data_dict = {}
         data_dict["arguments_df"] = self.arguments  # arguments set
@@ -240,17 +239,21 @@ class FeatureEngineering:
         return data_dict
 
     def remove_punctuations(self, df: pl.DataFrame, key: str) -> pl.DataFrame:
-        df.with_columns(pl.col(key).str.replace(r"[^\w\s]", " "))  # remove punctuations
+        df.with_columns(
+            pl.col(key).str.replace(r"[^\w\s]", " ").alias(key)
+        )  # remove punctuations
         return df
 
     def one_hot_encoding(self, df: pl.DataFrame, key: str) -> pl.DataFrame:
         df.with_columns(
-            pl.when(pl.col(key) == -1).then(0).otherwise(1)
+            pl.when(pl.col(key) == -1).then(0).otherwise(1).alias(key)
         )  # one hot encoder over stance
         return df
 
     def col_to_lower_case(self, df: pl.DataFrame, key: str) -> pl.DataFrame:
-        df.with_columns(pl.col(key).str.to_lowercase())  # trasform to lower case
+        df.with_columns(
+            pl.col(key).str.to_lowercase().alias(key)
+        )  # trasform to lower case
         return df
 
     def remove_stopwords(self, df: pl.DataFrame, col: str) -> pl.DataFrame:

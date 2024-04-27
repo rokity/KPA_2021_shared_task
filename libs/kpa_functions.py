@@ -6,7 +6,9 @@ import os
 import json
 
 import logging
+
 logging.basicConfig(format="%(levelname)s:%(message)s", level=logging.DEBUG)
+
 
 def get_ap(df: pl.DataFrame, label_column: str, top_percentile: float = 0.5):
     top = int(len(df) * top_percentile)
@@ -20,25 +22,29 @@ def get_ap(df: pl.DataFrame, label_column: str, top_percentile: float = 0.5):
     positives_in_top_predictions = sum(df.select(label_column))
     max_num_of_positives = len(df)
     ap_retrieval = ap * positives_in_top_predictions / max_num_of_positives
-    return ap_retrieval
+    return ap_retrieval.to_numpy()
 
 
 def calc_mean_average_precision(df: pl.DataFrame, label_column: str):
     precisions = [
-        get_ap(group, label_column) for _, group in df.group_by(["topic", "stance"])
+        get_ap(group, label_column) for _, group in df.group_by(by=["topic", "stance"])
     ]
+
     return np.mean(precisions)
 
 
 def evaluate_predictions(merged_df: pl.DataFrame):
-    # print("\n** running evalution:")
     mAP_strict = calc_mean_average_precision(merged_df, "label_strict")
     mAP_relaxed = calc_mean_average_precision(merged_df, "label_relaxed")
-    # print(f"mAP strict= {mAP_strict} ; mAP relaxed = {mAP_relaxed}")
+    logging.debug(
+        {"evaluation": f"mAP strict= {mAP_strict} ; mAP relaxed = {mAP_relaxed}"}
+    )
     return mAP_strict, mAP_relaxed
 
 
-def load_kpm_data(gold_data_dir: str, subset: str, submitted_kp_file: str = None,n_rows=None):
+def load_kpm_data(
+    gold_data_dir: str, subset: str, submitted_kp_file: str = None, n_rows=None
+):
     # print("\nֿ** loading task data:")
     arguments_file = os.path.join(gold_data_dir, f"arguments_{subset}.csv")
     if not submitted_kp_file:
@@ -47,9 +53,9 @@ def load_kpm_data(gold_data_dir: str, subset: str, submitted_kp_file: str = None
         key_points_file = submitted_kp_file
     labels_file = os.path.join(gold_data_dir, f"labels_{subset}.csv")
 
-    arguments_df = pl.read_csv(arguments_file,n_rows=n_rows)
-    key_points_df = pl.read_csv(key_points_file,n_rows=n_rows)
-    labels_file_df = pl.read_csv(labels_file,n_rows=n_rows)
+    arguments_df = pl.read_csv(arguments_file, n_rows=n_rows)
+    key_points_df = pl.read_csv(key_points_file, n_rows=n_rows)
+    labels_file_df = pl.read_csv(labels_file, n_rows=n_rows)
 
     for desc, group in arguments_df.group_by(["stance", "topic"]):
         stance = desc[0]
@@ -57,6 +63,7 @@ def load_kpm_data(gold_data_dir: str, subset: str, submitted_kp_file: str = None
         key_points = key_points_df.filter(
             (pl.col("stance") == stance) & (pl.col("topic") == topic)
         )
+        # logging.info(f"\t{desc}: loaded {len(group)} arguments and {len(key_points)} key points")
     return arguments_df, key_points_df, labels_file_df
 
 
@@ -76,23 +83,29 @@ def get_predictions(
     # print(predictions_df[predictions_df.isna().any(axis=1)])
     # handle arguements with no matching key point
     predictions_df = predictions_df.with_columns(
-    pl.when(predictions_df["key_point_id"].is_null())
-    .then(pl.lit("dummy_id"))
-    .otherwise(predictions_df["key_point_id"])
-    .alias("key_point_id")
-)
+        pl.when(predictions_df["key_point_id"].is_null())
+        .then(pl.lit("dummy_id"))
+        .otherwise(predictions_df["key_point_id"])
+        .alias("key_point_id")
+    )
     predictions_df = predictions_df.with_columns(
-    pl.when(predictions_df["score"].is_null())
-    .then(pl.lit(0))
-    .otherwise(predictions_df["score"])
-    .alias("score")
-)
+        pl.when(predictions_df["score"].is_null())
+        .then(pl.lit(0))
+        .otherwise(predictions_df["score"])
+        .alias("score")
+    )
 
     # merge each argument with the gold labels
-    merged_df = predictions_df.join(labels_df, on=["arg_id", "key_point_id"], how="left")
+    merged_df = predictions_df.join(
+        labels_df, on=["arg_id", "key_point_id"], how="left"
+    )
     # Filtra i record con 'key_point_id' uguale a 'dummy_id' e assegna 0 alla colonna 'label'
-    merged_df.filter(pl.col("key_point_id") == "dummy_id")
-    merged_df=merged_df.with_columns("label", pl.lit(0))
+    merged_df = merged_df.with_columns(
+        pl.when(merged_df["key_point_id"] == "dummy_id")
+        .then(pl.lit(0))
+        .otherwise(merged_df["label"])
+        .alias("label")
+    )
 
     # Sostituisci i valori mancanti in 'label' con 0 per 'label_strict' e con 1 per 'label_relaxed'
     merged_df = merged_df.with_columns(
@@ -122,7 +135,7 @@ def load_predictions(predictions_dir: str, correct_kp_list: list):
     kp = []
     scores = []
     invalid_keypoints = set()
-    correct_kp_list=correct_kp_list['key_point_id'].to_list()
+    correct_kp_list = correct_kp_list["key_point_id"].to_list()
     with open(predictions_dir, "r") as f_in:
         res = json.load(f_in)
         for arg_id, kps in res.items():
