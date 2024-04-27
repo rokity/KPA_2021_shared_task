@@ -8,7 +8,7 @@ from torch.utils.data import TensorDataset
 import polars as pl
 from .kpa_functions import load_kpm_data
 
-nltk.download("stopwords")
+nltk.download("stopwords",quiet=True)
 
 
 class FeatureEngineering:

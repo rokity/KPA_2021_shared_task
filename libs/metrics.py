@@ -47,7 +47,7 @@ def compute_metrics(
         merged_df = merged_df.cast({"label": pl.Int16})
         # merged_df = merged_df.cast({"score": pl.Int16})
         cr = classification_report(
-            merged_df["label"], merged_df["score"], zero_division=0
+            merged_df["label"], merged_df["score"], zero_division=0,output_dict=True
         )
         cm = confusion_matrix(merged_df["label"], merged_df["score"])
         return {"classification_report_training":cr,"confusion_matrix_train":cm}
@@ -66,8 +66,8 @@ def compute_metrics(
         )  # put threshold to 0.5
         merged_df = merged_df.cast({"label": pl.Int16})
         cr = classification_report(
-            merged_df["label"], merged_df["score"], zero_division=0
+            merged_df["label"], merged_df["score"], zero_division=0,output_dict=True
         )
         cm = confusion_matrix(merged_df["label"], merged_df["score"])
 
-        return {"classification_report_training":cr,"confusion_matrix_train":cm,"mAP_strict_test":mAP_strict,"mAP_relaxed_test":mAP_relaxed}
+        return {"classification_report_training":dict(cr),"confusion_matrix_train":cm,"mAP_strict_test":mAP_strict,"mAP_relaxed_test":mAP_relaxed}
