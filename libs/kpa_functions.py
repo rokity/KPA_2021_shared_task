@@ -4,7 +4,6 @@ from sklearn.metrics import average_precision_score
 import numpy as np
 import os
 import json
-
 import logging
 
 logging.basicConfig(format="%(levelname)s:%(message)s", level=logging.DEBUG)
@@ -19,17 +18,16 @@ def get_ap(df: pl.DataFrame, label_column: str, top_percentile: float = 0.5):
         y_true=df.select(label_column), y_score=df.select("score")
     )
     # multiply by the number of positives in top 50% and devide by the number of max positives within the top 50%, which is the number of top 50% instances
-    positives_in_top_predictions = sum(df.select(label_column))
+    positives_in_top_predictions = df.select(pl.sum(label_column))
     max_num_of_positives = len(df)
     ap_retrieval = ap * positives_in_top_predictions / max_num_of_positives
-    return ap_retrieval.to_numpy()
+    return ap_retrieval
 
 
 def calc_mean_average_precision(df: pl.DataFrame, label_column: str):
     precisions = [
         get_ap(group, label_column) for _, group in df.group_by(by=["topic", "stance"])
     ]
-
     return np.mean(precisions)
 
 
@@ -78,6 +76,7 @@ def get_predictions(
     )
     # make sure each arg_id has a prediction
     predictions_df = arg_df.join(predictions_df, on="arg_id", how="left")
+    
     # handle arguements with no matching key point
     predictions_df = predictions_df.with_columns(
         pl.when(predictions_df["key_point_id"].is_null())

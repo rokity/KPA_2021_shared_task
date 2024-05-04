@@ -33,7 +33,6 @@ def compute_metrics(
         filename, lbl_df, arg_df, kp_df
     )  # DF CON PREDICTION (ARG, KP, SCORE, LABEL)
     # choose metrics to evaluate quality of model's prediction
-
     # ----------------------------- Metric to analyze TR performance -----------------------------
     if mode == "train":
         merged_df.write_csv("prediction_results_TRAINING.csv")

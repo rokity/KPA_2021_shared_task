@@ -18,13 +18,13 @@ def load_data():
 
     dataset_parser = FeatureEngineering(tokenizer_name=used_tokenizer)
     tr_data_dict = dataset_parser.get_data(
-        data_directory=dataset_directory, mode="train", n_rows=100
+        data_directory=dataset_directory, mode="train"
     )
     vl_data_dict = dataset_parser.get_data(
-        data_directory=dataset_directory, mode="dev", n_rows=100
+        data_directory=dataset_directory, mode="dev"
     )
     ts_data_dict = dataset_parser.get_data(
-        data_directory=testset_directory, mode="test", n_rows=100
+        data_directory=testset_directory, mode="test"
     )
     return tr_data_dict, vl_data_dict, ts_data_dict
 
@@ -48,6 +48,12 @@ def train(tr: pl.DataFrame, vl: pl.DataFrame, ts: pl.DataFrame):
     )
     model, history = model_trainer.fit()
     logging.debug({"results": history})
+
+    with open("model_selection_result.txt", "a") as file_result:
+        file_result.write(str(hyperparameter_value))
+        file_result.write(json.dumps(history))
+        file_result.write("\n")
+        file_result.close()
 
 
 if __name__ == "__main__":

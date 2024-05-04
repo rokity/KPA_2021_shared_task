@@ -7,7 +7,9 @@ from transformers import AutoTokenizer
 from torch.utils.data import TensorDataset
 import polars as pl
 from .kpa_functions import load_kpm_data
+import logging
 
+logging.basicConfig(format="%(levelname)s:%(message)s", level=logging.DEBUG)
 nltk.download("stopwords",quiet=True)
 
 
@@ -235,7 +237,6 @@ class FeatureEngineering:
             self.preds
         )  # dataset 2: <argument, keypoint, label> set with label (0,1, undecided)
         data_dict["tokenized_preds"] = self.tokenized_preds  # tokenized dataset 2
-
         return data_dict
 
     def remove_punctuations(self, df: pl.DataFrame, key: str) -> pl.DataFrame:
@@ -245,7 +246,7 @@ class FeatureEngineering:
         return df
 
     def one_hot_encoding(self, df: pl.DataFrame, key: str) -> pl.DataFrame:
-        df.with_columns(
+        df=df.with_columns(
             pl.when(pl.col(key) == -1).then(0).otherwise(1).alias(key)
         )  # one hot encoder over stance
         return df
