@@ -24,7 +24,6 @@ class Trainer:
         self.epochs = param["epochs"]
         self.batch_size = param["batch_size"]
         self.learning_rate = param["learning_rate"]
-        self.total_iters = 5
         self.dropout = param["drop_out"]
         self.n_out_unit_1 = param["unit_1"]
 
