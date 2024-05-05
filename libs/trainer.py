@@ -2,13 +2,14 @@ import torch.optim as optim
 from torch.optim.lr_scheduler import LinearLR
 from torch.utils.data import DataLoader
 from sklearn.utils import shuffle
-from libs.neuralnetworklayers import NeuralNetworkLayers
+from neuralnetworklayers import NeuralNetworkLayers
 from torch import device, cuda, load, reshape, no_grad
 import torch.nn as nn
 import numpy as np
-from libs.metrics import compute_metrics
+from metrics import compute_metrics
 import polars as pl
 from tqdm import tqdm
+from hyperparameter import HyperParameters
 import logging
 
 logging.basicConfig(format="%(levelname)s:%(message)s", level=logging.DEBUG)
@@ -37,7 +38,7 @@ class Trainer:
             # load model from checkpoint
             self.model = load(model_checkpoint)
             self.device = device("cuda") if cuda.is_available() else device("cpu")
-        logging.debug({"device":self.device})
+        logging.debug({"device": self.device})
 
         self.model.to(self.device)  # pass model to gpu
         # define TRAINING DATA
@@ -83,7 +84,7 @@ class Trainer:
             "vl_map_strict": [],
             "vl_map_relaxed": [],
         }
-    
+
     # ---------------------------------------- FINETUNING on TR set  ------------------------------
     def training(self):
         self.model.train()  # set model state in training mode
@@ -103,33 +104,33 @@ class Trainer:
                 stance = stance.to(self.device)  # feature 4 = stance
                 label = label.to(self.device)  # target = label
             else:
-                    ids, mask, stance, label = dl
-                    ids = ids.to(self.device)  # feature 1 = ids
-                    mask = mask.to(self.device)  # feature 3 = attention mask
-                    stance = stance.to(self.device)  # feature 4 = stance
-                    label = label.to(self.device)
+                ids, mask, stance, label = dl
+                ids = ids.to(self.device)  # feature 1 = ids
+                mask = mask.to(self.device)  # feature 3 = attention mask
+                stance = stance.to(self.device)  # feature 4 = stance
+                label = label.to(self.device)
 
             self.optimizer.zero_grad()  # clear previously computed gradients
             # ---------- FORWARD ----------
             # compute model's output (this is matching score for each sample in the current batch)
             if self.model_name.startswith("bert-") is True:
-                    output = self.model(ids, mask, stance, tti)
+                output = self.model(ids, mask, stance, tti)
             else:
-                    output = self.model(ids, mask, stance)
+                output = self.model(ids, mask, stance)
 
             # compute loss for the current batches
             label = reshape(label, (label.shape[0], 1)).float()
             loss = self.loss_function(output, label)
 
-                # ---------- BACKWARD ----------
+            # ---------- BACKWARD ----------
             loss.backward()  # backpropagate loss
-                # clip gradient to prevent exploding gradients
+            # clip gradient to prevent exploding gradients
             nn.utils.clip_grad_norm_(self.model.parameters(), 1.0)
             self.optimizer.step()  # update model parameter
             self.scheduler.step()  # update learning rate value
 
-                # ---------- METRICS ----------
-                # accumulate loss of each batch
+            # ---------- METRICS ----------
+            # accumulate loss of each batch
             running_loss += loss.item()
             # accumulate predictions (matching score) of each batch
             pred = output.detach().cpu().numpy()

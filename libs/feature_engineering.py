@@ -6,11 +6,11 @@ import torch
 from transformers import AutoTokenizer
 from torch.utils.data import TensorDataset
 import polars as pl
-from .kpa_functions import load_kpm_data
+from kpa_functions import load_kpm_data
 import logging
 
 logging.basicConfig(format="%(levelname)s:%(message)s", level=logging.DEBUG)
-nltk.download("stopwords",quiet=True)
+nltk.download("stopwords", quiet=True)
 
 
 class FeatureEngineering:
@@ -92,7 +92,7 @@ class FeatureEngineering:
             )
 
             input_ids.append(encoded_input["input_ids"])
-            if self.tokenizer_name.startswith("bert-") == True:
+            if self.tokenizer_name.startswith("bert-") is True:
                 input_tti.append(encoded_input["token_type_ids"])
             input_mask.append(encoded_input["attention_mask"])
             input_stance.append(self.merged_dataset["stance"][i])
@@ -106,7 +106,7 @@ class FeatureEngineering:
 
         # use token type id only if the used tokenizer is the bert tokenizer
         # create the final tokeinzed dataset made up with tensors
-        if self.tokenizer_name.startswith("bert-") == True:
+        if self.tokenizer_name.startswith("bert-") is True:
             input_tti = torch.tensor(input_tti).squeeze()
             self.tokenized_dataset = TensorDataset(
                 input_ids, input_tti, input_mask, input_stance, input_label
@@ -137,7 +137,7 @@ class FeatureEngineering:
             )
 
             input_ids.append(encoded_input["input_ids"])
-            if self.tokenizer_name.startswith("bert-") == True:
+            if self.tokenizer_name.startswith("bert-") is True:
                 input_tti.append(encoded_input["token_type_ids"])
             input_mask.append(encoded_input["attention_mask"])
             input_stance.append(self.preds["stance"][i])
@@ -146,7 +146,7 @@ class FeatureEngineering:
         input_mask = torch.tensor(input_mask).squeeze()
         input_stance = torch.tensor(input_stance).squeeze()
 
-        if self.tokenizer_name.startswith("bert-") == True:
+        if self.tokenizer_name.startswith("bert-") is True:
             input_tti = torch.tensor(input_tti).squeeze()
             self.tokenized_preds = TensorDataset(
                 input_ids, input_tti, input_mask, input_stance
@@ -246,7 +246,7 @@ class FeatureEngineering:
         return df
 
     def one_hot_encoding(self, df: pl.DataFrame, key: str) -> pl.DataFrame:
-        df=df.with_columns(
+        df = df.with_columns(
             pl.when(pl.col(key) == -1).then(0).otherwise(1).alias(key)
         )  # one hot encoder over stance
         return df
