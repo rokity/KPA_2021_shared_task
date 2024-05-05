@@ -2,6 +2,7 @@
 build: clean-build ## Build wheel file using poetry
 	@echo "🚀 Creating wheel file"
 	@zip -r dist/libs.zip libs
+	@zip -r dist/data.zip KPA_2021_shared_task
 
 .PHONY: clean-build
 clean-build: ## clean build artifacts
