@@ -26,7 +26,7 @@ cffi @ file:///private/var/folders/k1/30mswbxs7r1g6zwn8y4fyt500000gp/T/abs_b4nan
 chardet==3.0.4
 charset-normalizer @ file:///tmp/build/80754af9/charset-normalizer_1630003229654/work
 cleo==2.1.0
-click @ file:///private/var/folders/nz/j6p8yfhx1mv_0grj5xl4650h0000gp/T/abs_croot-quwchbn8/click_1646123324461/work
+click==8.1.7
 cloudpickle @ file:///home/conda/feedstock_root/build_artifacts/cloudpickle_1697464713350/work
 cmaes==0.9.1
 colorlog==6.7.0
@@ -65,12 +65,13 @@ installer==0.7.0
 ipykernel==6.29.4
 ipython==8.12.3
 ipython-genutils==0.2.0
+ipywidgets==8.1.2
 isoduration==20.11.0
 jaraco.classes==3.3.1
 jedi==0.19.1
 Jinja2 @ file:///private/var/folders/nz/j6p8yfhx1mv_0grj5xl4650h0000gp/T/abs_9fjgzv9ant/croot/jinja2_1666908141308/work
 jinja2-time @ file:///opt/conda/conda-bld/jinja2-time_1649251842261/work
-joblib @ file:///private/var/folders/nz/j6p8yfhx1mv_0grj5xl4650h0000gp/T/abs_70fph11sxu/croot/joblib_1666298846160/work
+joblib==1.4.2
 jsonpointer==2.4
 jsonschema==4.21.1
 jsonschema-specifications==2023.12.1
@@ -82,6 +83,7 @@ jupyter_server==2.14.0
 jupyter_server_proxy==4.1.2
 jupyter_server_terminals==0.5.3
 jupyterlab_pygments==0.3.0
+jupyterlab_widgets==3.0.10
 keyring==24.3.1
 locket @ file:///home/conda/feedstock_root/build_artifacts/locket_1650660393415/work
 lz4 @ file:///private/var/folders/nz/j6p8yfhx1mv_0grj5xl4650h0000gp/T/abs_f0mtitgo6y/croot/lz4_1686063770247/work
@@ -145,7 +147,7 @@ PyYAML @ file:///private/var/folders/nz/j6p8yfhx1mv_0grj5xl4650h0000gp/T/abs_8dd
 pyzmq==25.1.2
 rapidfuzz==3.7.0
 referencing==0.34.0
-regex @ file:///private/var/folders/nz/j6p8yfhx1mv_0grj5xl4650h0000gp/T/abs_c16d2a8a-126e-4d7e-8084-357d1f1d1103zj2vwnhn/croots/recipe/regex_1658257182710/work
+regex==2024.4.28
 requests==2.31.0
 requests-oauthlib==1.3.1
 requests-toolbelt==1.0.0
@@ -183,7 +185,7 @@ toolz @ file:///home/conda/feedstock_root/build_artifacts/toolz_1706112571092/wo
 torch==1.13.1
 torchtext==0.14.1
 tornado==6.4
-tqdm @ file:///private/var/folders/nz/j6p8yfhx1mv_0grj5xl4650h0000gp/T/abs_637jfu39ar/croots/recipe/tqdm_1664392693982/work
+tqdm==4.66.4
 traitlets==5.14.2
 transformers==4.25.1
 trove-classifiers==2024.3.25
@@ -198,6 +200,7 @@ webcolors==1.13
 webencodings==0.5.1
 websocket-client==1.8.0
 Werkzeug==2.2.2
+widgetsnbextension==4.0.10
 xattr==1.1.0
 xxhash @ file:///private/var/folders/nz/j6p8yfhx1mv_0grj5xl4650h0000gp/T/abs_5dctqdmbn8/croot/python-xxhash_1667919512545/work
 yarl @ file:///private/var/folders/nz/j6p8yfhx1mv_0grj5xl4650h0000gp/T/abs_a5sx8bz_hq/croots/recipe/yarl_1661437083380/work

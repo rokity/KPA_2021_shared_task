@@ -1,7 +1,7 @@
-from libs.feature_engineering import FeatureEngineering
-from libs.download_data import download_data
-from libs.trainer import Trainer
-from libs.hyperparameter import HyperParameters
+from libs.classification.feature_engineering import FeatureEngineering
+from libs.classification.download_data import download_data
+from libs.classification.trainer import Trainer
+from libs.classification.hyperparameter import HyperParameters
 import json
 import polars as pl
 import os

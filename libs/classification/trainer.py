@@ -2,14 +2,14 @@ import torch.optim as optim
 from torch.optim.lr_scheduler import LinearLR
 from torch.utils.data import DataLoader
 from sklearn.utils import shuffle
-from libs.neuralnetworklayers import NeuralNetworkLayers
+from libs.classification.neuralnetworklayers import NeuralNetworkLayers
 from torch import device, cuda, load, reshape, no_grad
 import torch.nn as nn
 import numpy as np
-from libs.metrics import compute_metrics
+from libs.classification.metrics import compute_metrics
 import polars as pl
 from tqdm import tqdm
-from libs.hyperparameter import HyperParameters
+from libs.classification.hyperparameter import HyperParameters
 import logging
 
 logging.basicConfig(format="%(levelname)s:%(message)s", level=logging.DEBUG)
@@ -34,10 +34,12 @@ class Trainer:
                 self.model_name, self.dropout, self.n_out_unit_1
             )
             self.device = device("cuda") if cuda.is_available() else device("cpu")
+            # self.device = device("mps") 
         else:
             # load model from checkpoint
             self.model = load(model_checkpoint)
             self.device = device("cuda") if cuda.is_available() else device("cpu")
+            # self.device = device("mps")
         logging.debug({"device": self.device})
 
         self.model.to(self.device)  # pass model to gpu

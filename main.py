@@ -1,5 +1,5 @@
-from libs.hyperparameter import HyperParameters
-from libs.model_selection import ModelSelection
+from libs.classification.hyperparameter import HyperParameters
+from libs.classification.model_selection import ModelSelection
 import logging
 
 logging.basicConfig(format="%(levelname)s:%(message)s", level=logging.DEBUG)
