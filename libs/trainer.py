@@ -2,14 +2,14 @@ import torch.optim as optim
 from torch.optim.lr_scheduler import LinearLR
 from torch.utils.data import DataLoader
 from sklearn.utils import shuffle
-from neuralnetworklayers import NeuralNetworkLayers
+from libs.neuralnetworklayers import NeuralNetworkLayers
 from torch import device, cuda, load, reshape, no_grad
 import torch.nn as nn
 import numpy as np
-from metrics import compute_metrics
+from libs.metrics import compute_metrics
 import polars as pl
 from tqdm import tqdm
-from hyperparameter import HyperParameters
+from libs.hyperparameter import HyperParameters
 import logging
 
 logging.basicConfig(format="%(levelname)s:%(message)s", level=logging.DEBUG)

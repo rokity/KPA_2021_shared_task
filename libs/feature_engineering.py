@@ -6,7 +6,7 @@ import torch
 from transformers import AutoTokenizer
 from torch.utils.data import TensorDataset
 import polars as pl
-from kpa_functions import load_kpm_data
+from libs.kpa_functions import load_kpm_data
 import logging
 
 logging.basicConfig(format="%(levelname)s:%(message)s", level=logging.DEBUG)

@@ -1,7 +1,7 @@
-from feature_engineering import FeatureEngineering
-from download_data import download_data
-from trainer import Trainer
-from hyperparameter import HyperParameters
+from libs.feature_engineering import FeatureEngineering
+from libs.download_data import download_data
+from libs.trainer import Trainer
+from libs.hyperparameter import HyperParameters
 import json
 import polars as pl
 import os

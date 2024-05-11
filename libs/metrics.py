@@ -1,6 +1,6 @@
 from sklearn.metrics import classification_report, confusion_matrix
 import json
-from kpa_functions import get_predictions, evaluate_predictions
+from libs.kpa_functions import get_predictions, evaluate_predictions
 import polars as pl
 
 import logging
